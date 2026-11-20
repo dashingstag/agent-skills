@@ -1,0 +1,7 @@
+{
+  "name": "agent-skills",
+  "version": "1.0.0",
+  "description": "Personal skills for Devin CLI and agent sessions",
+  "author": { "name": "dashingstag" },
+  "repository": "https://github.com/dashingstag/agent-skills"
+}
