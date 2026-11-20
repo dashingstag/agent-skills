@@ -1,0 +1,11 @@
+{
+  "name": "agent-skills",
+  "owner": { "name": "dashingstag" },
+  "plugins": [
+    {
+      "name": "agent-skills",
+      "source": "./",
+      "description": "Personal skills for agent sessions: hapiv, railway-deploy, xianxia-godot-production"
+    }
+  ]
+}
