@@ -1,0 +1,40 @@
+{
+  "doc": "Curated teardown audit. emit-report.mjs renders this into teardown-report.html (pipeline | issues | explainer tabs). Rules: every score carries evidence (file + whyScore + excerpts); suspicions get verify:true, never asserted; an uncited score is itself a finding.",
+  "meta": {
+    "name": "<project>",
+    "conduit": "one-line artifact flow, e.g. 'request → parse → validate → execute → persist → respond'",
+    "generated": "YYYY-MM-DD"
+  },
+  "stations": {
+    "contract": {
+      "label": "CONTRACT",
+      "blurb": "the single source of truth: spec/schema/config root",
+      "parts": [
+        {
+          "id": "spec_root",
+          "label": "spec / schema file",
+          "file": "path/to/spec.json",
+          "what": "what it does, one concrete sentence",
+          "why": "what trusts it and why it exists",
+          "deps": {"consumer_part_id": "test"},
+          "breaks": "what silently fails if this changes",
+          "score": "green",
+          "whyScore": "the evidence for the score — parity test at file:line",
+          "metrics": {"loc": 0, "testLines": 0, "comments": 0, "panics": 0, "todos": 0, "unsafe": 0},
+          "excerpts": [{"file": "path/to/spec.json", "s": 1, "e": 12, "text": "verbatim lines"}]
+        }
+      ]
+    },
+    "transforms": {"label": "TRANSFORMS", "blurb": "compute units: passes / handlers / stages", "parts": []},
+    "runtime": {"label": "RUNTIME", "blurb": "orchestrator: scheduler / driver loop / dispatch", "parts": []},
+    "core": {"label": "CORE", "blurb": "the state authority everything trusts", "parts": []},
+    "domain": {"label": "DOMAIN", "blurb": "the business rules the system exists to run", "parts": []},
+    "boundary": {"label": "BOUNDARY", "blurb": "FFI / RPC / serialization / API surface", "parts": []},
+    "transport": {"label": "TRANSPORT", "blurb": "concurrency: queues / workers / wire protocol", "parts": []},
+    "surface": {"label": "SURFACE", "blurb": "presentation: UI / CLI / reporter", "parts": []},
+    "world": {"label": "WORLD", "blurb": "the live environment and its feedback into the top", "parts": []}
+  },
+  "fixes": {
+    "spec_root": "recommendation text — merged into the part dossier at report time"
+  }
+}
