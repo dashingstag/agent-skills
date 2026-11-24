@@ -1,9 +1,9 @@
 // Reusable notation: formula cards with breakdowns, and pop-up explanations for symbols.
 // Data comes from notation.json via site/notation-data.js (window.NOTATION).
 //
-//   <div data-formula="zeta-series"></div>          display formula + "Break it down"
-//   <span data-notation="zeta"></span>              the symbol, click for its explanation
-//   <span data-notation="zeta">$\zeta(2)$</span>    custom text, same explanation
+//   <div data-formula="example-formula"></div>       display formula + "Break it down"
+//   <span data-notation="example-symbol"></span>     the symbol, click for its explanation
+//   <span data-notation="example-symbol">$\alpha$</span>  custom text, same explanation
 //
 // Load order on a page: map.js, notation-data.js, notation.js, playback.js.
 

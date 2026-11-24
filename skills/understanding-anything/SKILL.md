@@ -1,11 +1,11 @@
 ---
 name: understanding-anything
-description: Scaffold a learning-journal "manual" for any subject — a concept map torn down to understandable leaves, with article pages, slide playbacks, a shared glossary/lore layer, and a build validator that enforces the whole kit. Works in two parts — Part 1 seeds the map with user-given high-level concepts (status Unseen) plus one worked example; Part 2 builds the full repo (site assets, validator, templates) after checking with the user which enforcements apply (video links, articles, animations, or domain substitutes like tables/queries/mock data). Use when someone wants to build a long-term understanding repo for a proof, a field, a system, a book, or a body of knowledge — "the understanding-math pattern for X".
+description: Scaffold a learning-journal "manual" for any subject — a concept map torn down to understandable leaves, with article pages, slide playbacks, a shared glossary/lore layer, and a build validator that enforces the whole kit. Works in two parts — Part 1 seeds the map with user-given high-level concepts (status Unseen) plus one worked example; Part 2 builds the full repo (site assets, validator, templates) after checking with the user which enforcements apply (video links, articles, animations, or domain substitutes like tables/queries/mock data). Use when someone wants to build a long-term understanding repo for a proof, a field, a system, a book, or a body of knowledge — "the concept-teardown manual pattern for X".
 ---
 
 # Understanding-Anything
 
-> Replicates the `understanding-math` system for an arbitrary domain: a concept
+> Replicates the learning-journal manual system for an arbitrary domain: a concept
 > graph torn down until every leaf is understood, every claim cited, and the
 > whole structure enforced by a build script. The pattern is the same; the
 > subject is not.
@@ -15,8 +15,9 @@ understood, and every claim in it points to a source.** Content lives in two
 views per concept — an `index.md` article (the teardown) and a `playback.html`
 (step-by-step slideshow) — over a shared concept graph in `map.json`.
 
-**Do not copy content from understanding-math** (no math, no pages, no glossary
-entries). Copy the *structure*: the files, the schema, the kit, the checks.
+**Do not copy content from an existing manual** (no domain text, no pages, no
+glossary entries). Copy the *structure*: the files, the schema, the kit, the
+checks.
 
 ## Templates
 
@@ -69,7 +70,7 @@ Do this first, before any site tooling exists.
 ## Phase 2 — the full manual, with enforcement
 
 **Before building, ask the user which enforcements apply.** The defaults are
-ALL of them (that is how understanding-math runs); the user's domain may
+ALL of them; the user's domain may
 justify dropping or substituting some. Ask specifically:
 
 - **Video per page?** Every content page needs `video: {id, t, title,
@@ -126,7 +127,7 @@ Then build the rest of the structure below and keep it green under
 │   ├── lore-data.js           # GENERATED: window.LORE (+used)
 │   ├── assets/                # style.css, playback.js, notation.js, lore.js,
 │   │                          # notes.js, progress.js, search.js, page-id.js,
-│   │                          # charts.js, <domain>.js (shared numerics, e.g. zeta.js)
+│   │                          # charts.js, <domain>.js (optional shared helpers/data layer)
 │   └── templates/playback.html
 ├── tools/build.py             # the validator + generator
 ├── notes/                     # owner notes, gitignored (written by the Notes widget)
@@ -252,7 +253,7 @@ formula ids link to the glossary. `build.py` renders it to `index.html`.
   labels never overlap), `limit()` (dashed ref line), `poly()`, `axis()`,
   `text()`.
 - `<domain>.js` — shared numerics/computations for the domain (the
-  understanding-math instance is `zeta.js`); reuse it instead of per-page code.
+  e.g. `domain.js`); reuse it instead of per-page code.
 - `style.css` — the shared dark theme: sticky `header.top`, sticky `.controls`
   bar, `.bar-caption`/`.bar-wing`/`.bar-pop`, `.story-panel`, `.anim-panel` +
   grip, `.callout`/`.mini-chart`/`.chart-legend`, `#scrub` slider (grey track,

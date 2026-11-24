@@ -1,7 +1,7 @@
 // Story callouts: pop-up bios for people and cards for related theorems.
 // Data comes from lore.json via site/lore-data.js (window.LORE).
 //
-//   <span data-person="euler">Euler</span>          click for who they were
+//   <span data-person="example-person">A person</span>   click for who they were
 //   <span data-theorem="basel">the Basel problem</span>  click for the statement
 //
 // Load order on a page: lore-data.js then lore.js (after KaTeX, like notation.js).

@@ -1,5 +1,5 @@
 // Shows the page's id (body[data-page-id]) as a chip in the header,
-// so a page can be referred to unambiguously, e.g. "the page 'euler-product'".
+// so a page can be referred to unambiguously, e.g. "the page 'root-concept'".
 // Click (or press Enter/Space) to copy the id.
 (function () {
   const id = document.body.dataset.pageId;

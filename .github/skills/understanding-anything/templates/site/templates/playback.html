@@ -7,7 +7,7 @@
   3. fix the asset paths below to match data-root
   4. use shared notation: <div data-formula="id"></div>, <span data-notation="id"></span>
      (ids in notation.json; add new ones there first).
-     In stories, wrap names in <span data-person="euler">…</span> and theorems in
+     In stories, wrap names in <span data-person="example-person">…</span> and theorems in
      <span data-theorem="basel">…</span> — ids live in lore.json; new ones go there first
   5. to link to another concept's page, write <a data-concept-link="some-id">text</a>
      — the address comes from the map, so folders can move without breaking links
@@ -24,7 +24,7 @@
   in <div class="widget"> inside that frame. Small line charts inside callouts
   use the shared MiniChart helper (assets/charts.js): c.legend() renders an
   HTML legend above the SVG, c.limit()/c.poly()/c.axis() draw the plot —
-  see assets/charts.js or the euler-product page for the pattern.
+  see assets/charts.js for the MiniChart pattern.
 -->
 <html lang="en">
 <head>
@@ -59,7 +59,7 @@
   <main class="playback">
     <section class="frame" data-title="Statement">
       <h2>Statement</h2>
-      <p>Inline maths: $a^2 + b^2 = c^2$. A shared symbol: <span data-notation="zeta"></span>.
+      <p>Inline maths: $a^2 + b^2 = c^2$. A shared symbol: <span data-notation="example-symbol"></span>.
         A shared formula with its breakdown:</p>
       <div data-formula="basel"></div>
     </section>
