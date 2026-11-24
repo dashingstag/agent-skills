@@ -5,7 +5,7 @@
     {
       "name": "agent-skills",
       "source": "./",
-      "description": "Personal skills for agent sessions: hapiv, railway-deploy, teardown-audit"
+      "description": "Personal skills for agent sessions: hapiv, railway-deploy, teardown-audit, understanding-anything"
     }
   ]
 }
