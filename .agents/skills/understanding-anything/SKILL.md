@@ -18,6 +18,28 @@ views per concept — an `index.md` article (the teardown) and a `playback.html`
 **Do not copy content from understanding-math** (no math, no pages, no glossary
 entries). Copy the *structure*: the files, the schema, the kit, the checks.
 
+## Templates
+
+`templates/` ships the ready-made skeleton — copy these verbatim, fill in the
+placeholders (`REPO-NAME`, `<DOMAIN>`, `CONCEPT-ID`, `ROOT`), and write only
+the domain content:
+
+| File | Use |
+|---|---|
+| `templates/README.md` | Repo root — north star, method, levels table. |
+| `templates/AGENTS.md` | Repo root — the agent rules, domain-neutral. Keep in sync with your enforcement choices. |
+| `templates/map.json` | Graph skeleton — levels table, a root node with the full field set (assess, video), one child showing `why`. |
+| `templates/notation.json` | Glossary skeleton — one `symbols` + one `formulas` example entry showing every field. |
+| `templates/lore.json` | Lore skeleton — one `people` + one `theorems` example entry. |
+| `templates/.gitignore` | `progress/`, `notes/*` + `!notes/.gitkeep`, generated files. |
+| `templates/templates/concept.md` | The `index.md` starter — front matter + the seven fixed sections. |
+| `templates/site/` | The whole front end — `index.html` (map page), `notation.html` (glossary page), `templates/playback.html` (playback starter), `assets/` (style.css, playback.js, notation.js, lore.js, notes.js, progress.js, search.js, page-id.js, charts.js). All domain-generic; only `REPO-NAME` placeholders need filling. |
+| `templates/tools/build.py` | The validator/generator — full check list + `index.md → index.html` renderer. Domain-generic; copy as-is and rerun after every change. |
+
+When a section doesn't fit the domain (e.g. no YouTube videos, no animations),
+drop the enforcement from `build.py` and the AGENTS.md rule together — they
+must stay consistent or the build will fight the agent.
+
 ---
 
 ## Phase 1 — seed the map + one example

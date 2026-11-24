@@ -1,0 +1,62 @@
+{
+  "root": "root-concept",
+  "levels": [
+    {
+      "name": "Unseen",
+      "desc": "Only a name on the map"
+    },
+    {
+      "name": "Content",
+      "desc": "The page/playback exists — content has been written (set by the agent)"
+    },
+    {
+      "name": "Recognised",
+      "desc": "I can state it in my own words"
+    },
+    {
+      "name": "Followed",
+      "desc": "I have read a proof and could follow each step with the source open"
+    },
+    {
+      "name": "Reproduced",
+      "desc": "I can prove it, or work an example, without notes"
+    },
+    {
+      "name": "Connected",
+      "desc": "I can explain why it is needed upstream and where it breaks if a hypothesis is removed"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "root-concept",
+      "title": "The north star — the thing to understand",
+      "summary": "One line: what this whole map is about.",
+      "parents": [],
+      "level": 0,
+      "why": {},
+      "video": {
+        "id": "YOUTUBE_ID_",
+        "t": 0,
+        "title": "Explainer video title",
+        "channel": "Channel name",
+        "note": "which segment of the video is relevant"
+      },
+      "assess": {
+        "2": "State it in your own words.",
+        "3": "Follow an explanation of it with the source open.",
+        "4": "Reproduce the key result or example without notes.",
+        "5": "Explain why it sits at the root and what breaks without it."
+      }
+    },
+    {
+      "id": "example-child",
+      "title": "A first concept the root needs",
+      "summary": "One line summary shown in the tree and the playback caption.",
+      "parents": ["root-concept"],
+      "level": 0,
+      "why": {
+        "root-concept": "One sentence: why the root cannot be understood without this."
+      }
+    }
+  ]
+}

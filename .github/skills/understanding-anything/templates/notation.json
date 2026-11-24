@@ -1,0 +1,39 @@
+{
+  "symbols": [
+    {
+      "id": "example-symbol",
+      "tex": "\\alpha",
+      "name": "Example term",
+      "say": "how to say it aloud",
+      "category": "Basics",
+      "meaning": "One-line meaning.",
+      "explanation": "Longer explanation; warn about easy misreadings here.",
+      "example": "Optional worked example.",
+      "concept": "example-child",
+      "see": []
+    }
+  ],
+  "formulas": [
+    {
+      "id": "example-formula",
+      "tex": "F = ma",
+      "name": "Example formula",
+      "say": "how to say it aloud",
+      "meaning": "What this formula says.",
+      "parts": [
+        {
+          "tex": "F",
+          "explain": "What this part is.",
+          "symbol": "example-symbol"
+        },
+        {
+          "tex": "ma",
+          "explain": "What this part does."
+        }
+      ],
+      "concept": "example-child",
+      "conditions": "When it holds.",
+      "source": "Book or paper, chapter."
+    }
+  ]
+}

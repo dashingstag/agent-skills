@@ -1,0 +1,21 @@
+{
+  "people": [
+    {
+      "id": "example-person",
+      "name": "Example Person",
+      "dates": "1900–1970",
+      "famous_for": "The thing they are known for",
+      "text": "A two-sentence story used in 'Did you know?' asides.",
+      "wiki": "Example Person"
+    }
+  ],
+  "theorems": [
+    {
+      "id": "example-result",
+      "name": "An example result",
+      "text": "Its statement in words and why it matters.",
+      "tex": "P \\Rightarrow Q",
+      "status": "proved / conjectured / folklore"
+    }
+  ]
+}
