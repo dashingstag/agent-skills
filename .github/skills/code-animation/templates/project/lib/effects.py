@@ -39,7 +39,6 @@ class Emitter:
 
     def layer(self, frame, color):
         im = Image.new("RGBA", self.size)
-        d = ImageDraw.Draw(im)
         for p in self.particles:
             age = frame - p.birth
             if not 0 <= age < p.life:
@@ -48,11 +47,22 @@ class Emitter:
             x = p.x + p.vx*age + 3*math.sin(p.phase+age*.10)
             y = p.y + p.vy*age + (.12*age*age if self.kind == "sparks" else 0)
             opacity = round(220*min(1,t*8,(1-t)*4))
+            if not opacity:
+                continue
             r = p.radius
             if self.kind == "sparks":
-                d.line((x,y,x-p.vx*1.5,y-1.5*(p.vy+.24*age)), fill=(*color,opacity), width=round(r))
+                x2, y2 = x-p.vx*1.5, y-1.5*(p.vy+.24*age)
+                width = round(r)
+                left, top = math.floor(min(x,x2))-width, math.floor(min(y,y2))-width
+                right, bottom = math.ceil(max(x,x2))+width, math.ceil(max(y,y2))+width
+                mark = Image.new("RGBA", (right-left+1, bottom-top+1))
+                ImageDraw.Draw(mark).line((x-left,y-top,x2-left,y2-top), fill=(*color,opacity), width=width)
             else:
-                d.ellipse((x-r,y-r,x+r,y+r), fill=(*color,opacity))
+                left, top = math.floor(x-r), math.floor(y-r)
+                right, bottom = math.ceil(x+r), math.ceil(y+r)
+                mark = Image.new("RGBA", (right-left+1, bottom-top+1))
+                ImageDraw.Draw(mark).ellipse((x-r-left,y-r-top,x+r-left,y+r-top), fill=(*color,opacity))
+            im.alpha_composite(mark, dest=(left,top))
         return im
 
 

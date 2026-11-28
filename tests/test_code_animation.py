@@ -18,13 +18,30 @@ sys.path[:0] = [str(PROJECT), str(PROJECT / "tools")]
 
 from animate import soundtrack
 from delivery import canvas, guides, transcript, verify_loop, write_srt
-from lib.effects import Emitter, composite
+from lib.effects import Emitter, Particle, composite
 from lib.footage import track, video_frames
 from lib.motion import Camera, keyframes, transition
 from lib.rig import mirror, viseme_at, walk
+from shots.bumper import setup as bumper_setup
 
 
 class AnimationTests(unittest.TestCase):
+    def test_bumper_pulse_is_optional_and_selected_by_id(self):
+        spec = {"width": 180, "height": 160}
+        shot = {"id": "resolve"}
+        without_pulse = bumper_setup(spec, shot)
+        self.assertEqual(without_pulse(0).tobytes(), without_pulse(14).tobytes())
+        shot["events"] = [{"id": "marker", "frame": 0}, {"id": "pulse", "frame": 12}]
+        with_pulse = bumper_setup(spec, shot)
+        self.assertEqual(without_pulse(11).tobytes(), with_pulse(11).tobytes())
+        self.assertNotEqual(without_pulse(12).tobytes(), with_pulse(12).tobytes())
+
+    def test_rgba_crossfade_does_not_bleed_hidden_rgb(self):
+        red = Image.new("RGBA", (1, 1), (255, 0, 0, 255))
+        clear_blue = Image.new("RGBA", (1, 1), (0, 0, 255, 0))
+        self.assertEqual(transition(red, clear_blue, .5, "crossfade").getpixel((0, 0)),
+                         (255, 0, 0, 127))
+
     def test_camera_and_transitions(self):
         black = Image.new("RGB", (10, 8), "black")
         white = Image.new("RGB", black.size, "white")
@@ -44,6 +61,18 @@ class AnimationTests(unittest.TestCase):
             emitter.layer(5,(250,200,150))
             self.assertEqual(frame,emitter.layer(13,(250,200,150)).tobytes())
             self.assertNotEqual(frame,emitter.layer(14,(250,200,150)).tobytes())
+
+    def test_particles_composite_over_each_other(self):
+        emitter = Emitter("snow", (10, 10), 1, 1)
+        existing = Particle(5, 5, 0, 0, 0, 30, 2, 0)
+        newborn = Particle(5, 5, 0, 0, 8, 30, 2, 0)
+        emitter.particles = [existing]
+        color = (255, 255, 255)
+        one = emitter.layer(8, color).getpixel((5, 5))
+        emitter.particles.append(newborn)
+        self.assertEqual(emitter.layer(8, color).getpixel((5, 5)), one)
+        emitter.particles = [existing, existing]
+        self.assertEqual(emitter.layer(8, color).getpixel((5, 5)), (255, 255, 255, 250))
 
     def test_transparent_blend_and_edge(self):
         base = Image.new("RGB",(1,1),(40,80,120))

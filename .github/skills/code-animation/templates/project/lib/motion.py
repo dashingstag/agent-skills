@@ -55,6 +55,10 @@ def transition(outgoing, incoming, progress, mode, action=.5):
     if mode == "cut-on-action":
         return incoming if t >= action else outgoing
     if mode == "crossfade":
+        if outgoing.mode == incoming.mode == "RGBA":
+            if t == 0 or t == 1:
+                return outgoing if t == 0 else incoming
+            return Image.blend(outgoing.convert("RGBa"), incoming.convert("RGBa"), t).convert("RGBA")
         return Image.blend(outgoing, incoming, t)
     if mode == "wipe":
         mask = Image.new("L", outgoing.size)

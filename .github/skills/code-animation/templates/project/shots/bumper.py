@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 def setup(spec, shot):
     w, h = spec["width"], spec["height"]
     intro = shot["id"] == "intro"
-    accent = None if intro else shot["events"][0]["frame"]
+    accent = next((event["frame"] for event in shot.get("events", []) if event["id"] == "pulse"), None)
 
     def frame(f):
         im = Image.new("RGB", (w, h), "#171e35")
@@ -14,7 +14,7 @@ def setup(spec, shot):
         x, y = w / 2, h / 2
         if intro:
             x -= w * .7 * (1 - min(f / 32, 1)) ** 3
-        elif f >= accent:
+        elif accent is not None and f >= accent:
             r = 48 + (f - accent) * 2.6
             a = math.exp(-(f - accent) / 12)
             color = tuple(round(base + a * (peak - base))
