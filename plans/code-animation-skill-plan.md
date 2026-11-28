@@ -1,0 +1,38 @@
+# Plan: Code Animation Skill
+
+Build `skills/code-animation/SKILL.md` for turning a brief into a reproducible animation and delivering both the source and the requested output. Reuse DON!'s shot-based production method, not its art, soundtrack, or engine wholesale. A two-second UI loop and a narrative film should share the same timing and review workflow without paying for the same tooling.
+
+## 1. Turn the brief into shots
+
+1. Record the audience, the intended takeaway or feeling, visual references, delivery platform and format, duration or loop behavior, aspect ratio, text/language, and sound or captions. Ask one batch of questions only where an answer changes the work (e.g. must it loop, is it interactive, are outside assets allowed?). State reversible defaults rather than blocking: for ordinary video, 1080p at 24 fps, silent unless sound is needed. Reuse an existing project’s stack if it fits.
+2. Write a beat sheet: what changes, what the viewer should notice, and how each beat leads to the next. Turn a beat into one shot or several, with a meaningful action, staging, and a frame budget. Check the most informative or riskiest shot first with a key still and a short motion preview. DON! has no request-to-shot generator: `README.md` states the film's arc and recurring motif; `film.py` orders 44 authored shots; `shots/g4.py` turns a specific beat (a sun becomes punctuation, a brush writes the title, a hat lands) into frame ranges, movement curves, and event markers.
+3. Choose the simplest renderer that fits: browser SVG/Canvas for UI, typography, and data graphics (capture by frame, not wall clock, for video); Python raster/Cairo for custom procedural 2D drawing and compositing; Blender headless only when true 3D geometry, lighting, or camera work warrants it. Keep interactive output native to the browser; don't substitute a video for it. Use procedural assets or user-supplied/licensed media as requested, and record their sources.
+
+## 2. Define one timeline and a small scaffold
+
+Ship `templates/project/` with `README.md`, `animation.json`, a small Python 2D example, dependency pins, and `tools/animate.py` for validation, stills, rendering, assembly, and review. Projects keep the brief and beat sheet in `README.md`, shot code in `shots/`, reusable drawing/camera/easing in `lib/`, inputs and provenance in `assets/`, and optional stems in `audio/`. Ignore generated `cache/`, `out/`, `qa/`, and `dist/`. Keep `SKILL.md` focused on decisions, workflow, and exit checks; put backend recipes in `references/`.
+
+- **Scene spec:** `animation.json` holds canvas size, FPS, seed, output settings, and ordered `shots[]`. Each shot has `id`, `frames`, `intent`, `renderer` (module or scene entry point), optional `assets`, and `events` such as `{"id":"title-hit","frame":36,"kind":"accent","sound":"tap"}`. Frames are zero-based, shot ranges are `[0, frames)`, and global start is the sum of prior lengths. Compute duration as `total_frames / fps` and place audio at `round(global_frame * sample_rate / fps)`. Score or caption timing may use that same clock. Validate unique IDs, shot entry points, asset paths, event bounds, and expected duration before rendering.
+- **Shot contract:** `setup(spec)` prepares static plates, rigs, or other reusable state; `frame(local_frame)` draws a reproducible frame independent of worker or render order. Derive seeds from the project and shot; use cached checkpoints for simulations that must step forward. Compose background, subject, foreground, and effects before a shared finish. DON! uses `Shot.setup()`/`Shot.frame(f)`, NumPy/OpenCV/Cairo and other Python imaging libraries, shared procedural assets in `op/` and `chars/`, disk-cached plates (`shots/dragonkit.py`), and a final pass in `op/comp.py` invoked by `tools/render.py`.
+- **Audio:** When requested, build voice, score, and effects as separate tracks; align transients to event IDs and mix, then mux. DON!'s Node chain (`audio/voice.mjs` → `audio/band.mjs` → `audio/mix.mjs`) synthesizes and mixes a 48 kHz soundtrack. `audio/cues.mjs` and `audio/sfx.mjs` align effects to local visual events; `tools/srt.py` derives lyric captions from `audio/score.json`. Use shared structured data rather than copying `audio/events.mjs`'s Python source parser, which skips dynamic entries. Derive timing once: DON!'s `film.py` totals 2,544 frames (106 s), whereas `op/__init__.py` still declares 2,736 frames.
+
+## 3. Make render, review, and handoff repeatable
+
+Proposed commands for the bundled example (its `intro` shot is 48 frames), run from the generated project root after the documented dependency setup:
+
+```sh
+python tools/animate.py validate
+python tools/animate.py still intro 0 24 47 --sheet
+python tools/animate.py render --only intro --range 20:40 --draft
+python tools/animate.py render --jobs 4
+python tools/animate.py assemble --out dist/animation.mp4
+python tools/animate.py verify dist/animation.mp4
+```
+
+Write draft outputs separately. For video, render or stream frames in order to FFmpeg, encode consistent per-shot intermediates, then assemble in timeline order. Default to H.264/yuv420p with AAC when there is audio; choose another output if transparency, editing, or the platform requires it. DON! streams RGB24 to H.264/yuv444p MKVs (`tools/render.py`), checks counts before concat, and writes a BT.709 MP4 with switchable subtitles and fast-start metadata (`tools/film.py`). The film's export settings are a reference, not all defaults. For native web output, package the runnable page/component and exercise playback, the loop seam, and any requested controls in the target browser instead of running the mux checks.
+
+- **Visual review:** Check first, middle, last, and event frames of each shot; use motion strips around transitions, then play the final export (including the seam for loops). Inspect framing, legibility, clipping, continuity, missing layers, and encoded colors. Follow DON!'s `tools/still.py`, `tools/sheet.sh`, and `tools/strip.sh` for quick crops, sheets, and strips.
+- **Technical review:** Decode the final file and use `ffprobe` to compare frame count, FPS, dimensions, expected streams, and duration with the manifest. For audio, check a cue near the beginning, middle, and end against the picture (within one frame unless the brief specifies an offset); listen for clipping, dropouts, masked dialogue, and unwanted tail truncation. Check caption timing where applicable.
+- **Failure handling:** Preflight fonts/assets, FFmpeg and renderer versions; bound worker count and use draft scale if memory or render time is prohibitive. Key caches by input, spec, and renderer version; reject stale or partial outputs. DON!'s `tools/film.py` skips clips by existence on ordinary renders, and `tools/render.py` waits for FFmpeg without propagating its exit code. The helper should fail on any nonzero exit and publish a clip only after count/format validation.
+
+**Implementation acceptance:** Ship one end-to-end reference project with two shots and a synced cue. Exercise it from a clean scaffold with full and selective renders, repeat a frame with different worker counts, and verify that missing/stale clips fail assembly. Trial a silent explainer and a browser loop to test that the workflow generalizes. Publish from the canonical `skills/code-animation/` directory (`name: code-animation` and a trigger-oriented `description` in frontmatter); run `python tools/sync_skills.py` and `python tools/sync_skills.py --check` for generated discovery copies. Hand off the render, editable source/spec, repro command, and QA evidence or explicit limitations.

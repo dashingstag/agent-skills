@@ -1,0 +1,14 @@
+{
+  "width": 640,
+  "height": 360,
+  "fps": 20,
+  "seed": 307,
+  "shots": [
+    {
+      "id": "greeting",
+      "frames": 54,
+      "intent": "Walk into position and raise one hand",
+      "renderer": "scene.py"
+    }
+  ]
+}

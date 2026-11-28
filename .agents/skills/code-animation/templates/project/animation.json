@@ -1,0 +1,8 @@
+{
+  "width": 640, "height": 360, "fps": 24, "seed": 6,
+  "shots": [
+    {"id": "intro", "frames": 48, "intent": "A turquoise tile arrives and holds", "renderer": "shots/bumper.py"},
+    {"id": "resolve", "frames": 48, "intent": "A ring resolves into the tile", "renderer": "shots/bumper.py",
+     "events": [{"id": "pulse", "frame": 12, "kind": "accent", "sound": "tap"}]}
+  ]
+}

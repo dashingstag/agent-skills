@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Small Signals — deterministic kinetic typography</title>
+<style>
+  @font-face { font-family: Capture Sans; src: local("DejaVu Sans"); font-weight: 400; }
+  @font-face { font-family: Capture Sans; src: local("DejaVu Sans Bold"); font-weight: 700; }
+  * { box-sizing: border-box; }
+  body { margin: 0; overflow: hidden; background: #18283d; color: #f5ead6; font-family: "Capture Sans", sans-serif; }
+  main { position: relative; isolation: isolate; width: 100vw; height: 100vh; padding: 24px 33px; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+  p { margin: 0; color: #a3d7cf; font-size: 13px; letter-spacing: 3px; }
+  h1 { margin: 8px 0 0; font-size: 45px; line-height: 1.1; white-space: nowrap; }
+  #tail { color: #ffb783; display: inline-block; }
+  svg { width: 100%; height: 68%; overflow: visible; }
+  svg text { fill: #f5ead6; font-size: 13px; }
+  .grid { stroke: #51677c; stroke-width: 1; }
+</style>
+<main>
+  <canvas aria-hidden="true"></canvas>
+  <p>DEMO DATA / DAILY READINGS</p>
+  <h1>Small <span id="tail">signals.</span></h1>
+  <svg viewBox="0 0 574 210" role="img" aria-label="Bar chart of fictional weekday readings">
+    <path class="grid" d="M38 50h520M38 90h520M38 130h520M38 170h520"></path>
+    <text x="0" y="54">60</text><text x="0" y="94">40</text><text x="0" y="134">20</text>
+    <g id="bars"></g>
+  </svg>
+</main>
+<script>
+  window.captureFonts = ['400 13px "Capture Sans"', '700 45px "Capture Sans"'];
+  const svg = document.querySelector("#bars");
+  const tail = document.querySelector("#tail");
+  const canvas = document.querySelector("canvas");
+  const ctx = canvas.getContext("2d");
+  const values = [24, 39, 31, 48, 56];
+  const nodes = values.map((v, i) => {
+    const rect = document.createElementNS(svg.namespaceURI, "rect");
+    const text = document.createElementNS(svg.namespaceURI, "text");
+    const num = document.createElementNS(svg.namespaceURI, "text");
+    const x = 65 + 102 * i;
+    for (const [name, val] of Object.entries({x, width: 62, rx: 5, fill: i < 4 ? "#71bfb2" : "#ffb783"})) rect.setAttribute(name, val);
+    for (const node of [text, num]) {
+      node.setAttribute("x", x + 31);
+      node.setAttribute("text-anchor", "middle");
+    }
+    text.setAttribute("y", "193");
+    text.textContent = ["MON","TUE","WED","THU","FRI"][i];
+    svg.append(rect, text, num);
+    return {rect, num, v};
+  });
+  const ease = (x) => { const t = Math.min(1, Math.max(0, x)); return t*t*(3 - 2*t); };
+  window.setFrame = (n) => {
+    const heading = ease(n / 15);
+    tail.style.transform = `translateX(${(1-heading)*30}px)`;
+    tail.style.opacity = heading;
+    nodes.forEach(({rect, num, v}, i) => {
+      const t = ease((n - 7 - 5*i) / 21);
+      rect.setAttribute("y", 170 - v*2*t);
+      rect.setAttribute("height", v*2*t);
+      num.setAttribute("y", 161 - v*2*t);
+      num.textContent = t > 0 ? Math.round(v*t) : "";
+    });
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    ctx.fillStyle = "#22354b";
+    for (let j = 18; j < canvas.height; j += 16) {
+      for (let i = 9; i < canvas.width; i += 16) {
+        ctx.fillRect(i, j, 1, 1);
+      }
+    }
+    ctx.fillStyle = "#ffb783";
+    ctx.fillRect(33, canvas.height-22, (canvas.width-66)*Math.min(1, n/63), 2);
+  };
+  window.setFrame(0);
+</script>
