@@ -1,0 +1,17 @@
+{
+  "width": 640,
+  "height": 360,
+  "fps": 24,
+  "seed": 307,
+  "shots": [
+    {
+      "id": "track",
+      "frames": 48,
+      "intent": "Track an overlay across a procedural video plate",
+      "renderer": "scene.py",
+      "assets": [
+        "assets/plate.mp4"
+      ]
+    }
+  ]
+}

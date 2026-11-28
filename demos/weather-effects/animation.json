@@ -1,0 +1,14 @@
+{
+  "width": 640,
+  "height": 360,
+  "fps": 20,
+  "seed": 307,
+  "shots": [
+    {
+      "id": "embers",
+      "frames": 56,
+      "intent": "Separate foreground flurry, sparks and drifting dust",
+      "renderer": "scene.py"
+    }
+  ]
+}

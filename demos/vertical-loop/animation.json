@@ -1,0 +1,15 @@
+{
+  "width": 288,
+  "height": 512,
+  "fps": 20,
+  "seed": 307,
+  "aspect": "9:16",
+  "shots": [
+    {
+      "id": "orbit",
+      "frames": 40,
+      "intent": "Repeat the orbit without an endpoint hold",
+      "renderer": "scene.py"
+    }
+  ]
+}

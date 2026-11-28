@@ -1,0 +1,20 @@
+{
+  "width": 640,
+  "height": 360,
+  "fps": 20,
+  "seed": 307,
+  "shots": [
+    {
+      "id": "approach",
+      "frames": 40,
+      "intent": "Read the layered ridge and approaching craft",
+      "renderer": "scene.py"
+    },
+    {
+      "id": "velocity",
+      "frames": 42,
+      "intent": "Wipe on the move, then dissolve to the title",
+      "renderer": "scene.py"
+    }
+  ]
+}

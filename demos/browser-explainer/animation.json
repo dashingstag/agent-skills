@@ -1,0 +1,14 @@
+{
+  "width": 640,
+  "height": 360,
+  "fps": 20,
+  "seed": 307,
+  "shots": [
+    {
+      "id": "chart",
+      "frames": 64,
+      "intent": "Reveal a headline and SVG bars with a Canvas accent",
+      "sequence": "cache/browser"
+    }
+  ]
+}

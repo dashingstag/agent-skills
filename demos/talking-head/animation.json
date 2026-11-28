@@ -1,0 +1,19 @@
+{
+  "width": 640,
+  "height": 360,
+  "fps": 24,
+  "seed": 307,
+  "audio": "assets/voice.wav",
+  "captions": "captions.json",
+  "shots": [
+    {
+      "id": "message",
+      "frames": 60,
+      "intent": "Milo delivers a short field-radio message",
+      "renderer": "scene.py",
+      "assets": [
+        "visemes.json"
+      ]
+    }
+  ]
+}

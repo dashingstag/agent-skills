@@ -1,0 +1,22 @@
+{
+  "width": 1920, "height": 1080, "fps": 24, "seed": 427,
+  "shots": [
+    {"id":"faceoff","frames":72,"intent":"Establish the opposing fighters and their rising auras","renderer":"shots/canyon.py","events":[
+      {"id":"blue-charge","frame":13,"kind":"charge","sound":"charge","gain":0.65,"pan":-0.62},
+      {"id":"gold-charge","frame":36,"kind":"charge","sound":"charge","gain":0.75,"pan":0.62}
+    ]},
+    {"id":"rush","frames":48,"intent":"Korr dashes left; Iri braces on the opposite side","renderer":"shots/canyon.py","events":[
+      {"id":"dash","frame":8,"kind":"dash","sound":"dash","gain":0.94,"pan":0.27},
+      {"id":"gather","frame":30,"kind":"charge","sound":"charge","gain":0.69,"pan":-0.68}
+    ]},
+    {"id":"clash","frames":72,"intent":"The beams meet, strain, and break into a shockwave","renderer":"shots/canyon.py","events":[
+      {"id":"release","frame":11,"kind":"launch","sound":"beam","gain":0.8,"pan":-0.4},
+      {"id":"meet","frame":17,"kind":"contact","sound":"impact","gain":0.73},
+      {"id":"flare","frame":43,"kind":"impact","sound":"impact","gain":0.98},
+      {"id":"tail","frame":56,"kind":"aftershock","sound":"dash","gain":0.29}
+    ]},
+    {"id":"aftermath","frames":48,"intent":"Dust clears and the fighters return to ready stances","renderer":"shots/canyon.py","events":[
+      {"id":"land","frame":9,"kind":"landing","sound":"tap","gain":0.25,"pan":0.2}
+    ]}
+  ]
+}

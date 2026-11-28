@@ -1,0 +1,15 @@
+{
+  "width": 480,
+  "height": 270,
+  "fps": 16,
+  "seed": 307,
+  "shots": [
+    {
+      "id": "relic",
+      "frames": 32,
+      "intent": "Layer a rotating 3D relic under 2D graphic elements",
+      "renderer": "scene.py",
+      "input_sequences": ["cache/relic"]
+    }
+  ]
+}
