@@ -100,6 +100,19 @@ class AnimationCliTests(unittest.TestCase):
         self.assertEqual(len(list((self.root / "out").glob("*/sample.mp4"))), 1)
         self.assertEqual(list((self.root / "out").glob("*/.render-*")), [])
 
+    def test_declared_renderer_in_excluded_directory_invalidates_cache(self):
+        renderer = self.root / "frames" / self.renderer.name
+        renderer.parent.mkdir()
+        self.renderer.rename(renderer)
+        self.shots[0]["renderer"] = renderer.relative_to(self.root).as_posix()
+        self.write_manifest()
+        self.run_cli("render")
+        self.run_cli("assemble")
+        renderer.write_text(renderer.read_text().replace("(64, 48)", "(64, 48), 'red'"))
+        result = self.run_cli("assemble", check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("missing or stale shot sample", result.stderr)
+
     def test_loop_rejects_mislabeled_animation(self):
         path = self.root / "fake.gif"
         a = Image.new("RGB", (64, 48), "black")

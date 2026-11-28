@@ -81,7 +81,7 @@ def read_spec(*, check_inputs=True, smoke=False):
                 assets.update(asset_source(sequence_frame(shot, f)) for f in range(shot["frames"]))
             else:
                 p = Path(shot["renderer"])
-                source(p)
+                assets.add(asset_source(p))
                 require(p.suffix == ".py", f"{sid}: renderer must be a Python file")
                 initialize = runpy.run_path(str(p)).get("setup")
                 require(callable(initialize), f"{sid}: missing setup(spec, shot)")
