@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REPO-NAME — concept map explorer</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <h1>REPO-NAME</h1>
+  <span class="searchbox">
+    <input id="search" type="search" placeholder="Search concepts…" autocomplete="off" spellcheck="false">
+    <div class="search-results" hidden></div>
+  </span>
+  <span class="seg" id="mode-seg" title="What the search box does and what the chat packs as context">
+    <button data-mode="graph" class="on">Graph</button><button data-mode="search">Search</button>
+  </span>
+  <span class="ctl" title="Hop radius around the centroid">
+    <button id="hops-minus">−</button><span id="hops-val">2</span><button id="hops-plus">+</button>
+    <label class="muted">hops</label>
+  </span>
+  <select id="dir-sel" title="Which edges the hop radius follows">
+    <option value="both">needs ⇄ needed-by</option>
+    <option value="down">needs ↓</option>
+    <option value="up">needed-by ↑</option>
+  </select>
+  <label class="ctl chk"><input type="checkbox" id="sat-chk" checked> satellites</label>
+  <label class="ctl chk"><input type="checkbox" id="men-chk" checked> mentions</label>
+  <span class="ctl pop" id="phys-pop">
+    <button id="phys-btn">physics</button>
+    <div class="pop-body" hidden>
+      <label>repulsion <input type="range" id="p-charge" min="5" max="120" value="30"></label>
+      <label>link dist <input type="range" id="p-link" min="10" max="160" value="55"></label>
+      <label>gravity <input type="range" id="p-grav" min="0" max="100" value="20"></label>
+      <label>friction <input type="range" id="p-decay" min="5" max="60" value="28"></label>
+      <label>ring gap <input type="range" id="p-gap" min="60" max="280" value="140"></label>
+      <label>ring pull <input type="range" id="p-pull" min="0" max="100" value="35"></label>
+    </div>
+  </span>
+  <span class="legend" id="legend"></span>
+  <span class="status" id="status"></span>
+</header>
+
+<main id="graph-wrap"><div id="graph"></div></main>
+<div id="edge-tip" hidden></div>
+
+<aside id="detail" hidden></aside>
+
+<section id="chat">
+  <div id="chat-head">
+    <span class="dot" id="chat-dot"></span>
+    <strong>chat · local llm</strong>
+    <span id="ctx-chip" class="ctx-chip" title="What goes into the next prompt"></span>
+    <button id="chat-toggle">open</button>
+  </div>
+  <div id="chat-body" hidden>
+    <div class="chat-settings">
+      <input id="llm-base" list="llm-presets" spellcheck="false">
+      <datalist id="llm-presets">
+        <option value="http://localhost:11434/v1">Ollama</option>
+        <option value="http://localhost:1234/v1">LM Studio</option>
+        <option value="http://localhost:8080/v1">llama.cpp</option>
+      </datalist>
+      <input id="llm-model" list="llm-models" placeholder="model" spellcheck="false">
+      <datalist id="llm-models"></datalist>
+      <select id="ctx-depth" title="How much article text is packed into the context">
+        <option value="summaries">summaries</option>
+        <option value="centroid">+ centroid article</option>
+        <option value="neighborhood">+ neighbourhood articles</option>
+      </select>
+      <button id="llm-ping" title="refresh model list">↻</button>
+      <button id="ctx-copy" title="copy the packed context">ctx ⧉</button>
+    </div>
+    <div id="chat-log"></div>
+    <div id="chat-input-row">
+      <textarea id="chat-input" rows="2" placeholder="Ask about this part of the map…  (Ctrl+Enter to send)"></textarea>
+      <button id="chat-send">send</button>
+    </div>
+  </div>
+</section>
+
+<script src="sources.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/graph.js"></script>
+<script src="assets/search.js"></script>
+<script src="assets/detail.js"></script>
+<script src="assets/chat.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
