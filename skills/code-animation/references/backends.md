@@ -6,20 +6,20 @@ Keep the brief, ordered shot spec, local frame numbering, and QA gates regardles
 |---|---|---|
 | Raster illustration, procedural effects, compositing | Python/Pillow; add NumPy or Cairo only as needed. Render at integer frame indices; put static artwork in setup. | Use the scaffold tools. H.264/AAC MP4 is the default; use an alpha-capable codec or PNG sequence when the brief needs transparency. |
 | UI, typography, charts, responsive or interactive graphics | SVG/CSS or Canvas. For capture, expose a deterministic `setFrame(n)`; wait for fonts/asset loads and capture frames at fixed size, not real-time screenshots. | Deliver the running component/page for interaction. For video, export a numbered lossless image sequence, then encode with FFmpeg at the manifest rate. Check the target viewport and reduced-motion behavior where applicable. |
-| True depth, camera moves, lighting, rigged 3D | Blender, with cameras and shot ranges defined by the manifest. Set FPS and resolution, pin render engine/settings, and convert zero-based local indices to Blender's frame range. | Render one representative still first. Then render numbered frames with `blender -b scene.blend -o //frames/frame_ -F PNG -a`, and mux after reviewing the frames. |
+| True depth, camera moves, lighting, rigged 3D | Blender, with cameras and shot ranges defined by the manifest. Set FPS and resolution, pin render engine/settings, and convert zero-based local indices to Blender's frame range. | Render one representative still first. For a 32-frame shot starting at frame zero, run `blender -b scene.blend -o //frames/#### -F PNG -s 0 -e 31 -a`. This writes `frames/0000.png` through `frames/0031.png` beside the blend file; replace 31 with the shot frame count minus one. |
 
 Set `"sequence": "cache/browser"` instead of `"renderer"` for a full RGB shot. Name frames `0000.png`, `0001.png`, etc. For RGBA passes composited by a renderer, declare `"input_sequences": ["cache/pass"]` on the shot so changes invalidate the render key.
 
 ## Browser capture
 
-Install `templates/browser/requirements.txt`, then `python -m playwright install chromium` (or pass `--chromium` pointing at an installed executable). From the project directory:
+Set `SKILL` to the absolute path of the directory containing this skill's `SKILL.md`; the browser and Blender commands below use it. Install `python -m pip install -r "$SKILL/templates/browser/requirements.txt"`, then run `python -m playwright install chromium` (or pass `--chromium` pointing at an installed executable). The example page requires both DejaVu Sans Regular and DejaVu Sans Bold installed on the machine. From the project directory:
 
 ```sh
 python "$SKILL/templates/browser/capture.py" "$SKILL/templates/browser/index.html" \
   --out cache/browser --width 640 --height 360 --frames 64
 ```
 
-Declare the font queries in `window.captureFonts`; bundle or pin any fonts you need and make failed font loads errors. Implement `setFrame(n)` so it sets the entire state and returns only after synchronous drawing or an awaited draw completes. Do not depend on wall time, transitions or previous frames. The capture script checks a sample in reverse order. For an actual screen recording, start from the footage recipe.
+Declare the font queries in `window.captureFonts`, or use an empty array for a font-free scene. Bundle or pin any fonts you need; a failed font load is an error. Implement `setFrame(n)` so it sets the entire state and returns only after synchronous drawing or an awaited draw completes. Do not depend on wall time, transitions or previous frames. The capture script checks a sample in reverse order and warns if every frame is identical; pass `--require-motion` when a static result should fail. For an actual screen recording, start from the footage recipe.
 
 ## Photo and footage
 

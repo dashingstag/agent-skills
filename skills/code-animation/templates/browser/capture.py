@@ -4,6 +4,7 @@ import argparse
 from hashlib import sha256
 from pathlib import Path
 import re
+import sys
 from tempfile import TemporaryDirectory
 
 from playwright.sync_api import sync_playwright
@@ -17,7 +18,7 @@ def capture(args):
                                 device_scale_factor=1, reduced_motion="reduce")
         page.goto(args.page.resolve().as_uri(), wait_until="load")
         page.evaluate("""async () => {
-            if (!Array.isArray(window.captureFonts) || !window.captureFonts.length)
+            if (!Array.isArray(window.captureFonts))
                 throw Error("declare captureFonts");
             const results = await Promise.all(captureFonts.map(font => document.fonts.load(font)));
             await document.fonts.ready;
@@ -50,8 +51,11 @@ def capture(args):
         for f in sorted(samples, reverse=True):
             if hashes[f] != sha256(frame(f)).digest():
                 raise ValueError(f"frame {f} changed when captured out of order")
-        if args.frames > 1 and not has_motion:
-            raise ValueError("all captured frames are identical")
+        if not has_motion:
+            if args.require_motion:
+                raise ValueError("all captured frames are identical")
+            if args.frames > 1:
+                print("Warning: all captured frames are identical", file=sys.stderr)
         if errors:
             raise ValueError("; ".join(errors))
         browser.close()
@@ -61,7 +65,8 @@ def capture(args):
                 old.unlink()
         for f in filenames:
             f.replace(args.out / f.name)
-    print(f"Captured {args.frames} frames at {args.width}x{args.height}; fonts ready: {', '.join(loaded)}; seek check passed")
+    print(f"Captured {args.frames} frames at {args.width}x{args.height}; "
+          f"fonts ready: {', '.join(loaded) or 'none declared'}; seek check passed")
 
 
 if __name__ == "__main__":
@@ -72,6 +77,7 @@ if __name__ == "__main__":
     parser.add_argument("--width", type=int, required=True)
     parser.add_argument("--height", type=int, required=True)
     parser.add_argument("--chromium")
+    parser.add_argument("--require-motion", action="store_true", help="fail unless a frame changes")
     args = parser.parse_args()
     if min(args.frames, args.width, args.height) <= 0:
         parser.error("frame count and dimensions must be positive")
