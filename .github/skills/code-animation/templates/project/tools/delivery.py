@@ -73,6 +73,9 @@ def verify_loop(path, size, fps, frames, max_bytes, max_seam):
     if nbytes > max_bytes:
         raise ValueError(f"{path}: {nbytes} bytes exceeds {max_bytes} byte limit")
     with Image.open(path) as im:
+        expected = {".gif": "GIF", ".webp": "WEBP"}.get(path.suffix.lower())
+        if expected is None or im.format != expected:
+            raise ValueError(f"{path}: expected {expected or 'GIF or WebP'} data, found {im.format}")
         if not im.is_animated or im.size != size or im.info.get("loop") != 0:
             raise ValueError(f"{path}: expected an infinite animated loop at {size}")
         first = im.convert("RGB")

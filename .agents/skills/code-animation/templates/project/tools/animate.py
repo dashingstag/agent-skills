@@ -5,6 +5,7 @@ from array import array
 from concurrent.futures import ProcessPoolExecutor
 from fractions import Fraction
 import hashlib
+import inspect
 import itertools
 import json
 import math
@@ -27,7 +28,7 @@ import delivery
 
 RATE = 48000
 LENGTH = {"tap": .23, "charge": 1.1, "dash": .4, "beam": 1.15, "impact": .65}
-GENERATED = {"cache", "out", "qa", "dist"}
+GENERATED = {"cache", "out", "qa", "dist", "frames"}
 FRAME = None
 TEMPLATE = Path(__file__).resolve().parents[1]
 
@@ -58,7 +59,7 @@ def asset_source(path):
     return logical, resolved
 
 
-def read_spec(*, check_inputs=True):
+def read_spec(*, check_inputs=True, smoke=False):
     spec = json.loads(Path("animation.json").read_text(encoding="utf-8"))
     delivery.canvas(spec)
     for key in ("width", "height", "fps"):
@@ -82,7 +83,8 @@ def read_spec(*, check_inputs=True):
                 p = Path(shot["renderer"])
                 source(p)
                 require(p.suffix == ".py", f"{sid}: renderer must be a Python file")
-                require(callable(runpy.run_path(str(p)).get("setup")), f"{sid}: missing setup(spec, shot)")
+                initialize = runpy.run_path(str(p)).get("setup")
+                require(callable(initialize), f"{sid}: missing setup(spec, shot)")
             for directory in shot.get("input_sequences", []):
                 assets.update(asset_source(sequence_frame({"sequence": directory}, f)) for f in range(shot["frames"]))
             assets.update(asset_source(asset) for asset in shot.get("assets", []))
@@ -97,6 +99,11 @@ def read_spec(*, check_inputs=True):
             require("sound" not in e or e["sound"] in LENGTH, f"{sid}/{eid}: unknown sound")
             require(0 <= e.get("gain", .65) <= 1 and -1 <= e.get("pan", 0) <= 1,
                     f"{sid}/{eid}: gain or pan out of range")
+        if check_inputs and smoke:
+            if "sequence" in shot:
+                check_frame(open_frame(sequence_frame(shot, 0)), 0, spec)
+            else:
+                smoke_renderer(initialize, spec, shot)
     if "audio" in spec:
         require(Path(spec["audio"]).suffix.lower() == ".wav", "external audio must be a WAV")
     if check_inputs:
@@ -128,10 +135,27 @@ def setup(spec, shot):
 
 
 def image(f, spec):
-    im = FRAME(f)
+    return check_frame(FRAME(f), f, spec)
+
+
+def check_frame(im, f, spec):
     require(isinstance(im, Image.Image) and im.mode == "RGB" and
             im.size == (spec["width"], spec["height"]), f"frame {f}: expected canvas-sized RGB image")
     return im
+
+
+def smoke_renderer(initialize, spec, shot):
+    sid = shot["id"]
+    try:
+        inspect.signature(initialize).bind(spec, shot)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{sid}: invalid setup(spec, shot) signature: {exc}") from exc
+    try:
+        frame = initialize(spec, shot)
+        require(callable(frame), "setup must return a frame function")
+        check_frame(frame(0), 0, spec)
+    except Exception as exc:
+        raise ValueError(f"{sid}: renderer smoke check failed: {exc}") from exc
 
 
 def pixels(f, spec, size):
@@ -189,9 +213,21 @@ def render_key(assets):
 
 
 def probe(path):
-    result = subprocess.check_output(["ffprobe", "-v", "error", "-count_frames",
+    result = subprocess.check_output(["ffprobe", "-v", "error",
                                      "-show_streams", "-show_format", "-of", "json", str(path)])
     return json.loads(result)
+
+
+def verify_timestamps(path, n, fps, unit):
+    result = subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v:0",
+                                      "-show_frames", "-show_entries", "frame=pts,pkt_pts",
+                                      "-of", "json", str(path)])
+    frames = json.loads(result).get("frames", [])
+    require(len(frames) == n, f"{path}: expected {n} decoded frames")
+    for i, frame in enumerate(frames):
+        stamp = frame.get("pts", frame.get("pkt_pts"))
+        require(stamp is not None and abs(int(stamp) * unit - Fraction(i, fps)) <= unit / 2,
+                f"{path}: frame {i} is off the expected {fps} fps timestamp grid")
 
 
 def verify_media(path, n, size, fps, audio, final=False, captions=False):
@@ -204,9 +240,9 @@ def verify_media(path, n, size, fps, audio, final=False, captions=False):
             and len(streams) == 1 + int(audio) + int(captions),
             f"{path}: unexpected streams")
     v = vs[0]
-    require(int(v.get("nb_read_frames", 0)) == n, f"{path}: expected {n} decoded frames")
     require((v["width"], v["height"]) == size and Fraction(v["avg_frame_rate"]) == fps and
             v["codec_name"] == "h264" and v["pix_fmt"] == "yuv420p", f"{path}: wrong video format")
+    verify_timestamps(path, n, fps, Fraction(v["time_base"]))
     require(abs(float(info["format"]["duration"]) - n / fps) <= 1 / fps,
             f"{path}: unexpected duration")
     if au:
@@ -232,11 +268,11 @@ def render(spec, shot, indices, jobs, draft, key):
     directory.mkdir(parents=True, exist_ok=True)
     tag = f"{shot['id']}-{indices.start}-{indices.stop}" if draft else shot["id"]
     out = directory / f"{tag}.mp4"
-    tmp = directory / f"{tag}.part.mp4"
-    cmd = ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-           "-s", f"{size[0]}x{size[1]}", "-r", str(spec["fps"]), "-i", "-", "-an", "-c:v",
-           "libx264", "-threads", "2", "-preset", "fast", "-crf", "17", "-pix_fmt", "yuv420p", str(tmp)]
-    try:
+    with TemporaryDirectory(dir=directory, prefix=".render-") as scratch:
+        tmp = Path(scratch) / out.name
+        cmd = ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
+               "-s", f"{size[0]}x{size[1]}", "-r", str(spec["fps"]), "-i", "-", "-an", "-c:v",
+               "libx264", "-threads", "2", "-preset", "fast", "-crf", "17", "-pix_fmt", "yuv420p", str(tmp)]
         with subprocess.Popen(cmd, stdin=subprocess.PIPE) as p:
             with ProcessPoolExecutor(jobs, initializer=setup, initargs=(spec, shot)) as pool:
                 pending = iter(indices)
@@ -247,8 +283,6 @@ def render(spec, shot, indices, jobs, draft, key):
             require(p.wait() == 0, "shot encoder failed")
         verify_media(tmp, len(indices), size, spec["fps"], False)
         tmp.replace(out)
-    finally:
-        tmp.unlink(missing_ok=True)
     print(f"Rendered {out}: {len(indices)} frames")
 
 
@@ -426,8 +460,12 @@ def main():
     args = cli.parse_args()
     os.chdir(args.project)
     sys.path[:0] = [str(Path.cwd()), str(TEMPLATE)]
-    spec, assets = read_spec(check_inputs=args.command not in ("verify", "loop"))
+    spec, assets = read_spec(check_inputs=args.command not in ("verify", "loop"),
+                             smoke=args.command == "validate")
     shots = {s["id"]: s for s in spec["shots"]}
+    requested = args.shot if args.command == "still" else args.only if args.command == "render" else None
+    if requested is not None:
+        require(requested in shots, f"unknown shot ID {requested!r}; valid IDs: {', '.join(shots)}")
     size = (spec["width"], spec["height"])
     has_audio = "audio" in spec or any(events(spec))
     has_caps = "captions" in spec
